@@ -8,6 +8,30 @@ bp_stt = Blueprint('stt_api', __name__)
 
 @bp_stt.route('/transcribe', methods=['POST'])
 def transcribe_audio():
+    """
+    Transcribe an uploaded audio file.
+    ---
+    consumes:
+      - multipart/form-data
+    parameters:
+      - in: formData
+        name: audio_file
+        type: file
+        required: true
+        description: The audio file to transcribe (wav, m4a, etc)
+    responses:
+      200:
+        description: Transcription result
+        schema:
+          type: object
+          properties:
+            transcription:
+              type: string
+      400:
+        description: Bad request
+      500:
+        description: Internal server error
+    """
     if 'audio_file' not in request.files:
         return jsonify({"error": "No audio_file part in the request"}), 400
     file = request.files['audio_file']

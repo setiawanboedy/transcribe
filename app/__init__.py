@@ -25,6 +25,6 @@ def create_app():
         'swagger_ui': True,
         'specs_route': '/apidocs/'
     })
-    app.register_blueprint(transcript_bp)
-    app.register_blueprint(bp_stt)
+    app.register_blueprint(transcript_bp, url_prefix="/api")
+    app.register_blueprint(bp_stt, url_prefix="/api")
     return app

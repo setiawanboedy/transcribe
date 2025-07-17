@@ -3,10 +3,75 @@ from app.services.transcript_service import TranscriptService
 
 bp = Blueprint('transcript_api', __name__)
 
+
+@bp.route('/all_transcripts', methods=['GET'])
+def get_all_transcripts():
+    """
+    Ambil semua hasil transkrip yang tersimpan di database.
+    ---
+    responses:
+      200:
+        description: Daftar semua transkrip
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              filename:
+                type: string
+              transcription:
+                type: string
+              created_at:
+                type: string
+    """
+    from app.models.transcript import Transcript
+    transcripts = Transcript.query.order_by(Transcript.created_at.desc()).all()
+    result = []
+    for t in transcripts:
+        result.append({
+            "id": t.id,
+            "filename": t.filename,
+            "transcription": t.transcription,
+            "created_at": t.created_at.isoformat() if t.created_at else None
+        })
+    return jsonify(result), 200
+
 @bp.route('/save_transcript', methods=['POST'])
 def save_transcript():
-    filename = request.form.get('filename')
-    transcription = request.form.get('transcription')
+    """
+    Simpan hasil transkripsi ke database SQLite.
+    ---
+    consumes:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            filename:
+              type: string
+            transcription:
+              type: string
+    responses:
+      200:
+        description: Transkrip berhasil disimpan
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+            id:
+              type: integer
+      400:
+        description: Bad request
+    """
+    data = request.get_json()
+    filename = data.get('filename') if data else None
+    transcription = data.get('transcription') if data else None
     if not filename or not transcription:
         return jsonify({"error": "filename dan transcription wajib diisi"}), 400
     transcript = TranscriptService.save_transcript(filename, transcription)
@@ -14,8 +79,41 @@ def save_transcript():
 
 @bp.route('/edit_transcript/<int:transcript_id>', methods=['PUT'])
 def edit_transcript(transcript_id):
-    filename = request.form.get('filename')
-    transcription = request.form.get('transcription')
+    """
+    Edit transcript yang sudah disimpan di database.
+    ---
+    consumes:
+      - application/json
+    parameters:
+      - in: path
+        name: transcript_id
+        type: integer
+        required: true
+        description: ID transcript yang akan diedit
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            filename:
+              type: string
+            transcription:
+              type: string
+    responses:
+      200:
+        description: Transkrip berhasil diupdate
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+      404:
+        description: Transcript tidak ditemukan
+    """
+    data = request.get_json()
+    filename = data.get('filename') if data else None
+    transcription = data.get('transcription') if data else None
     transcript = TranscriptService.edit_transcript(transcript_id, filename, transcription)
     if not transcript:
         return jsonify({"error": "Transcript tidak ditemukan"}), 404
@@ -23,6 +121,26 @@ def edit_transcript(transcript_id):
 
 @bp.route('/delete_transcript/<int:transcript_id>', methods=['DELETE'])
 def delete_transcript(transcript_id):
+    """
+    Hapus transcript dari database.
+    ---
+    parameters:
+      - in: path
+        name: transcript_id
+        type: integer
+        required: true
+        description: ID transcript yang akan dihapus
+    responses:
+      200:
+        description: Transkrip berhasil dihapus
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+      404:
+        description: Transcript tidak ditemukan
+    """
     success = TranscriptService.delete_transcript(transcript_id)
     if not success:
         return jsonify({"error": "Transcript tidak ditemukan"}), 404
