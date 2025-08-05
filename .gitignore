@@ -141,4 +141,4 @@ audio_sample.wav
 audio_sample_2.m4a
 
 whisper-tiny-id-local/
-models/
+models/**
