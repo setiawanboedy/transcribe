@@ -14,6 +14,11 @@ def transcribe_audio():
     consumes:
       - multipart/form-data
     parameters:
+      - in: header
+        name: Authorization
+        type: string
+        required: true
+        description: 'Bearer <JWT token>'
       - in: formData
         name: audio_file
         type: file
