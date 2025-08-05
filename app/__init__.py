@@ -3,6 +3,7 @@ from flask import Flask
 from app.db.database import db
 from app.api.transcript_api import bp as transcript_bp
 from app.api.stt_api import bp_stt
+from app.api.auth_api import bp_auth
 from flasgger import Swagger
 
 
@@ -27,4 +28,5 @@ def create_app():
     })
     app.register_blueprint(transcript_bp, url_prefix="/api")
     app.register_blueprint(bp_stt, url_prefix="/api")
+    app.register_blueprint(bp_auth, url_prefix="/api")
     return app
