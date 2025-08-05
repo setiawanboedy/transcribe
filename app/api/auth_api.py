@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.auth_service import AuthService
+from app.services.jwt_service import JWTService
 
 bp_auth = Blueprint('auth_api', __name__)
 
@@ -67,4 +68,5 @@ def login():
     user = AuthService.authenticate(username, password)
     if not user:
         return jsonify({"error": "Username atau password salah"}), 401
-    return jsonify({"message": "Login success", "user_id": user.id}), 200
+    token = JWTService.encode_token(user.id)
+    return jsonify({"message": "Login success", "token": token}), 200

@@ -9,6 +9,12 @@ def get_all_transcripts():
     """
     Ambil semua hasil transkrip yang tersimpan di database.
     ---
+    parameters:
+      - in: header
+        name: Authorization
+        type: string
+        required: true
+        description: 'Bearer <JWT token>'
     responses:
       200:
         description: Daftar semua transkrip
@@ -26,8 +32,21 @@ def get_all_transcripts():
               created_at:
                 type: string
     """
-    from app.models.transcript import Transcript
-    transcripts = Transcript.query.order_by(Transcript.created_at.desc()).all()
+    from app.services.jwt_service import JWTService
+    auth_header = request.headers.get('Authorization')
+    print(f"[TRANSCRIPT DEBUG] Authorization header: {auth_header}")
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Authorization token required"}), 401
+    parts = auth_header.split(' ', 1)
+    token = parts[1].strip() if len(parts) > 1 else ''
+    print(f"[TRANSCRIPT DEBUG] Token parsed: {token}")
+    if not token:
+        return jsonify({"error": "Authorization token required"}), 401
+    user_id = JWTService.decode_token(token)
+    print(f"[TRANSCRIPT DEBUG] user_id from token: {user_id}")
+    if not user_id:
+        return jsonify({"error": "Token tidak valid atau expired"}), 401
+    transcripts = TranscriptService.get_all_transcripts(user_id)
     result = []
     for t in transcripts:
         result.append({
@@ -46,6 +65,11 @@ def save_transcript():
     consumes:
       - application/json
     parameters:
+      - in: header
+        name: Authorization
+        type: string
+        required: true
+        description: 'Bearer <JWT token>'
       - in: body
         name: body
         required: true
@@ -69,12 +93,26 @@ def save_transcript():
       400:
         description: Bad request
     """
+    from app.services.jwt_service import JWTService
+    auth_header = request.headers.get('Authorization')
+    print(f"[TRANSCRIPT DEBUG] Authorization header: {auth_header}")
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Authorization token required"}), 401
+    parts = auth_header.split(' ', 1)
+    token = parts[1].strip() if len(parts) > 1 else ''
+    print(f"[TRANSCRIPT DEBUG] Token parsed: {token}")
+    if not token:
+        return jsonify({"error": "Authorization token required"}), 401
+    user_id = JWTService.decode_token(token)
+    print(f"[TRANSCRIPT DEBUG] user_id from token: {user_id}")
+    if not user_id:
+        return jsonify({"error": "Token tidak valid atau expired"}), 401
     data = request.get_json()
     filename = data.get('filename') if data else None
     transcription = data.get('transcription') if data else None
     if not filename or not transcription:
         return jsonify({"error": "filename dan transcription wajib diisi"}), 400
-    transcript = TranscriptService.save_transcript(filename, transcription)
+    transcript = TranscriptService.save_transcript(filename, transcription, user_id)
     return jsonify({"message": "Transkrip berhasil disimpan", "id": transcript.id}), 200
 
 @bp.route('/edit_transcript/<int:transcript_id>', methods=['PUT'])
@@ -85,6 +123,11 @@ def edit_transcript(transcript_id):
     consumes:
       - application/json
     parameters:
+      - in: header
+        name: Authorization
+        type: string
+        required: true
+        description: 'Bearer <JWT token>'
       - in: path
         name: transcript_id
         type: integer
@@ -111,10 +154,24 @@ def edit_transcript(transcript_id):
       404:
         description: Transcript tidak ditemukan
     """
+    from app.services.jwt_service import JWTService
+    auth_header = request.headers.get('Authorization')
+    print(f"[TRANSCRIPT DEBUG] Authorization header: {auth_header}")
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Authorization token required"}), 401
+    parts = auth_header.split(' ', 1)
+    token = parts[1].strip() if len(parts) > 1 else ''
+    print(f"[TRANSCRIPT DEBUG] Token parsed: {token}")
+    if not token:
+        return jsonify({"error": "Authorization token required"}), 401
+    user_id = JWTService.decode_token(token)
+    print(f"[TRANSCRIPT DEBUG] user_id from token: {user_id}")
+    if not user_id:
+        return jsonify({"error": "Token tidak valid atau expired"}), 401
     data = request.get_json()
     filename = data.get('filename') if data else None
     transcription = data.get('transcription') if data else None
-    transcript = TranscriptService.edit_transcript(transcript_id, filename, transcription)
+    transcript = TranscriptService.edit_transcript(transcript_id, user_id, filename, transcription)
     if not transcript:
         return jsonify({"error": "Transcript tidak ditemukan"}), 404
     return jsonify({"message": "Transkrip berhasil diupdate"}), 200
@@ -125,6 +182,11 @@ def delete_transcript(transcript_id):
     Hapus transcript dari database.
     ---
     parameters:
+      - in: header
+        name: Authorization
+        type: string
+        required: true
+        description: 'Bearer <JWT token>'
       - in: path
         name: transcript_id
         type: integer
@@ -141,7 +203,21 @@ def delete_transcript(transcript_id):
       404:
         description: Transcript tidak ditemukan
     """
-    success = TranscriptService.delete_transcript(transcript_id)
+    from app.services.jwt_service import JWTService
+    auth_header = request.headers.get('Authorization')
+    print(f"[TRANSCRIPT DEBUG] Authorization header: {auth_header}")
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Authorization token required"}), 401
+    parts = auth_header.split(' ', 1)
+    token = parts[1].strip() if len(parts) > 1 else ''
+    print(f"[TRANSCRIPT DEBUG] Token parsed: {token}")
+    if not token:
+        return jsonify({"error": "Authorization token required"}), 401
+    user_id = JWTService.decode_token(token)
+    print(f"[TRANSCRIPT DEBUG] user_id from token: {user_id}")
+    if not user_id:
+        return jsonify({"error": "Token tidak valid atau expired"}), 401
+    success = TranscriptService.delete_transcript(transcript_id, user_id)
     if not success:
         return jsonify({"error": "Transcript tidak ditemukan"}), 404
     return jsonify({"message": "Transkrip berhasil dihapus"}), 200

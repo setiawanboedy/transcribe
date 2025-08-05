@@ -1,3 +1,4 @@
+Flask-Migrate
 faster_whisper==1.1.1
 flasgger==0.9.7.1
 Flask==3.1.1
@@ -6,3 +7,4 @@ torch
 torchvision
 torchaudio
 python-dotenv
+pyjwt==2.10.1
