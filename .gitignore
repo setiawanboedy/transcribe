@@ -9,11 +9,10 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-venv/
-.venv/
+.stt/
 ENV/
 env.bak/
-venv.bak/
+.stt.bak/
 pip-wheel-metadata/
 build/
 develop-eggs/
@@ -137,3 +136,9 @@ ehthumbs.db
 Icon?
 Desktop.ini
 __MACOSX/
+
+audio_sample.wav
+audio_sample_2.m4a
+
+whisper-tiny-id-local/
+models/
