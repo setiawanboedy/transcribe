@@ -16,18 +16,17 @@ class JWTService:
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         if isinstance(token, bytes):
             token = token.decode('utf-8')
-        print(f"[JWT DEBUG] ENCODE: SECRET_KEY={SECRET_KEY}, PAYLOAD={payload}, TOKEN={token}")
         return token
 
     @staticmethod
     def decode_token(token):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            print(f"[JWT DEBUG] DECODE: SECRET_KEY={SECRET_KEY}, TOKEN={token}, PAYLOAD={payload}")
-            return payload['sub']
+            return {
+                "user_id": payload['sub'],
+                "expired_at": payload['exp']
+            }
         except jwt.ExpiredSignatureError:
-            print(f"[JWT DEBUG] DECODE ERROR: ExpiredSignatureError, SECRET_KEY={SECRET_KEY}, TOKEN={token}")
             return None
         except jwt.InvalidTokenError:
-            print(f"[JWT DEBUG] DECODE ERROR: InvalidTokenError, SECRET_KEY={SECRET_KEY}, TOKEN={token}")
             return None

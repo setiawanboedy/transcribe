@@ -69,4 +69,5 @@ def login():
     if not user:
         return jsonify({"error": "Username atau password salah"}), 401
     token = JWTService.encode_token(user.id)
-    return jsonify({"message": "Login success", "token": token}), 200
+    token_data = JWTService.decode_token(token)
+    return jsonify({"message": "Login success", "token": token, "expired_at": token_data["expired_at"]}), 200
