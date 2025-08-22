@@ -3,7 +3,7 @@ from faster_whisper import WhisperModel
 
 class STTService:
     _model = None
-    _model_path = os.environ.get("MODEL_PATH", "./models/faster-whisper-medium-id")
+    _model_path = os.environ.get("MODEL_PATH", "/app/models/faster-whisper-medium-id")
     _device = os.environ.get("DEVICE", "cpu")
     _compute_type = os.environ.get("COMPUTE_TYPE", "int8")
 

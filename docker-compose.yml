@@ -1,15 +1,14 @@
-version: '3.8'
 services:
   app:
     build: .
-    container_name: audio-transcription-app
+    container_name: transcription-app
     ports:
       - "5000:5000"
     volumes:
-      - .:/app
+      - ./models:/app/models
     environment:
       - FLASK_ENV=production
-      - MODEL_PATH=./models/faster-whisper-medium-id
+      - MODEL_PATH=/app/models/faster-whisper-medium-id
       - DEVICE=cpu
       - COMPUTE_TYPE=int8
     restart: unless-stopped
