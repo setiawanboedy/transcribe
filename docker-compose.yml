@@ -12,3 +12,4 @@ services:
       - DEVICE=cpu
       - COMPUTE_TYPE=int8
     restart: unless-stopped
+    # command: sh -c "flask --app migrate_app db upgrade && python run.py"
