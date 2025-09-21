@@ -9,6 +9,7 @@ services:
     environment:
       - FLASK_ENV=production
       - MODEL_PATH=/app/models/faster-whisper-medium-id
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/transcripts
       - DEVICE=cpu
       - COMPUTE_TYPE=int8
     restart: unless-stopped
